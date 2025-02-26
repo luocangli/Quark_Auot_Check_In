@@ -1,13 +1,17 @@
 import os 
 import re 
 import sys 
-import requests 
+import requests
+import json
 
 cookie_list = os.getenv("COOKIE_QUARK").split('\n|&&')
 
 # 替代 notify 功能
 def send(title, message):
-    print(f"{title}: {message}")
+    send_message = f"{title}: {message}"
+    print(send_message)
+    send_dingtalk_message(send_message)
+    send_wxpusher_message(send_message)
 
 # 获取环境变量 
 def get_env(): 
@@ -24,8 +28,82 @@ def get_env():
 
     return cookie_list 
 
-# 其他代码...
+# 推送钉钉群机器人消息
+def send_dingtalk_message(message):
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    
+    payload = {
+        "msgtype": "text",
+        "text": {
+            "content": message
+        }
+    }
 
+    # 判断 DINGTALK_WEBHOOK 是否存在于环境变量 
+    if "DINGTALK_WEBHOOK" in os.environ: 
+        webhook_url = os.environ.get('DINGTALK_WEBHOOK')
+    else: 
+        # 标准日志输出 
+        print('❌ 未添加DINGTALK_WEBHOOK变量') 
+        return
+    
+    if webhook_url is None:
+        print("❌ DINGTALK_WEBHOOK变量不存在. 请检查你的配置")
+        return
+    
+    response = requests.post(webhook_url, headers=headers, data=json.dumps(payload))
+    
+    if response.status_code == 200:
+        print("✅ 钉钉推送消息发送成功")
+    else:
+        print(f"❌ 钉钉推送消息发送失败, 状态码: {response.status_code}, 响应内容: {response.json()}")
+
+## 推送WxPusher消息
+def send_wxpusher_message(message):
+    url = "https://wxpusher.zjiecode.com/api/send/message"
+    headers = {"Content-Type": "application/json"}
+
+    # 判断 WX_PUSHER_APP_TOKEN 是否存在于环境变量 
+    if "WX_PUSHER_APP_TOKEN" in os.environ: 
+        app_token = os.environ.get('WX_PUSHER_APP_TOKEN')
+    else: 
+        # 标准日志输出 
+        print('❌ 未添加WX_PUSHER_APP_TOKEN变量') 
+        return
+    
+    if app_token is None:
+        print("❌ WX_PUSHER_APP_TOKEN变量不存在. 请检查你的配置")
+        return
+
+    # 判断 WX_PUSHER_UID 是否存在于环境变量 
+    if "WX_PUSHER_UID" in os.environ: 
+        uid = os.environ.get('WX_PUSHER_UID')
+    else: 
+        # 标准日志输出 
+        print('❌ 未添加WX_PUSHER_UID变量') 
+        return
+    
+    if uid is None:
+        print("❌ WX_PUSHER_UID变量不存在. 请检查你的配置")
+        return
+
+    data = {
+        "appToken": app_token,
+        "content": message,
+        "summary": "夸克网盘自动签到任务",  # 消息摘要
+        "contentType": 1,  # 1 表示文字消息
+        "uids": [uid],  # 接收消息的用户 UID
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    if response.status_code == 200:
+        print("✅ WxPusher推送消息发送成功")
+    else:
+        print(f"❌ WxPusher推送消息发送失败, 状态码: {response.status_code}, 响应内容: {response.json()}")
+
+# 其他代码...
 class Quark:
     '''
     Quark类封装了签到、领取签到奖励的方法
