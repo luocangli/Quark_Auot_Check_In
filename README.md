@@ -20,7 +20,7 @@
 
 1. **获取 COOKIE_QUARK**
 
-   【手机端】必须使用手机端抓包，小白推荐使用[proxypin](https://github.com/wanghongenpin/proxypin)或[Reqable]，需要开启root权限才能抓到包
+   【手机端】必须使用手机端抓包，小白推荐使用[proxypin](https://github.com/wanghongenpin/proxypin)或[Reqable](https://reqable.com/)，需要开启root权限才能抓到包
    
 - 打开抓包工具，手机端访问签到页，
 
@@ -49,7 +49,7 @@
 - 将上面复制的 `Webhook地址` 粘贴进去保存
 
 2. **WxPusher微信消息推送配置**
-- 打开WxPusher官网(https://wxpusher.zjiecode.com/admin/main)，微信扫码登录, 会要求让你创建应用
+- 打开[WxPusher官网](https://wxpusher.zjiecode.com/admin/main)，微信扫码登录, 会要求让你创建应用
 - 创建好应用，复制 `AppToken` 备用
 - `应用管理/应用信息` 扫码关注你创建好的应用，然后在 `用户管理/用户列表` 里找到新增的用户信息，复制 `UID` 备用
 - 跟配置 `COOKIE_QUARK` 一样，在`GitHub Secrets`下配置分别创建一个名为 `WX_PUSHER_APP_TOKEN` 的 Secret 和一个 名为 `WX_PUSHER_UID` 的 Secret ，将上面复制的 `AppToken` 和 `UID` 分别粘贴进去保存
